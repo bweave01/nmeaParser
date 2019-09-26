@@ -1,4 +1,4 @@
-function [nmea, index, filename] = parse_nmea_logfile(filename)
+function [nmea, index] = parse_nmea_logfile(filename)
 %PARSE_NMEA_LOGFILE Parses a text file containing GPS NMEA text data.
 
 initialize_nmea_data;
@@ -55,6 +55,7 @@ while 1
 end
 
 % Output structures
+nmea.filename = filename;
 nmea.gga = gga;
 index.gga = fieldnames(gga);
 
