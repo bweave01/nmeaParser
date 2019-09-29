@@ -1,12 +1,28 @@
-function [nmea, index] = parse_nmea_logfile(filename)
+function [Nmea, index] = parseNmeaLogfile(filename)
 %PARSE_NMEA_LOGFILE Parses a text file containing GPS NMEA text data.
+%
+% INPUTS:
+%
+% * filename - the name of the text file containing NMEA sentences, where
+% each row is a separate NMEA sentence.
+%
+% Supported NMEA messages:
+%
+% * GPGGA
+%
+% OUTPUTS:
+%
+% * nmea - a structure containing structures for each type of NMEA message
+% (GPGGA, GPGGL, etc.)
+% * index - a structure containing the index fields for the parsed NMEA
+% sentences.
 
-initialize_nmea_data;
+initializeNmeaStruct;
 
 % Select filename if given file isn't found.
 if ~exist(filename,'file')
-    dsply_title = 'Please select the NMEA log file';
-    [filename, pathname] = uigetfile('*.*',dsply_title);
+    displayTitle = 'Please select the NMEA log file';
+    [filename, pathname] = uigetfile('*.*',displayTitle);
     
     if filename == 0
         error('Run cancelled by user')
@@ -26,10 +42,9 @@ if fid < 3
 end
 
 % Read file a line at a time.
-num_lines = 0;
-num_skip = 0;
-
-num_gga = 0;
+nLines = 0;
+nSkip = 0;
+numGga = 0;
 while 1
     line = fgetl(fid);
     if ~ischar(line)
@@ -37,26 +52,26 @@ while 1
     end
     
     if ( ~isempty(line) && strcmp(line(1:3),'$GP') ) % NMEA GPS sentence
-        num_lines = num_lines + 1;
+        nLines = nLines + 1;
         sentence_type = line(4:6);
         
         switch sentence_type
             case 'GGA'
-                num_gga = num_gga + 1;
-                gga = parse_gga_sentence(line,gga,num_gga);
+                numGga = numGga + 1;
+                gga = parseGgaSentence(line,gga,numGga);
                 
             otherwise
         end
         
         
     else 
-        num_skip = num_skip + 1;
+        nSkip = nSkip + 1;
     end    
 end
 
 % Output structures
-nmea.filename = filename;
-nmea.gga = gga;
+Nmea.filename = filename;
+Nmea.gga = gga;
 index.gga = fieldnames(gga);
 
 end %function
