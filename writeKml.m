@@ -34,7 +34,7 @@ if exist(kmlName,'file')
 end
 if overwriteFile
   fid = fopen(kmlName, 'wt');
-  fprintf('Ovewriting %s file.\n',kmlName)
+  fprintf('Writing %s file.\n',kmlName)
 else
     error('Did not overwrite KML file. Function stopped.')
 end

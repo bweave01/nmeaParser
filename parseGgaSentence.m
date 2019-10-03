@@ -18,6 +18,19 @@ fields = textscan(line, '%s', 'delimiter', ',');
 [fields{1}(end), fields{1}(end+1)] = strtok(fields{1}(end),'*'); % Give checksum own field.
 fields = char(fields{1});
 
+[nRows, width] = size(fields);
+
+% Make sure read line field width matches initialized field width.
+if width < 10
+    for iRow = 1:nRows
+        padRow = blanks(10-width);
+        newFields(iRow,:) = [fields(iRow,:) padRow];
+    end
+    fields = newFields;    
+elseif width > 10
+    error('Field width from read sentence exceeds initialized field width.');
+end
+
 names = fieldnames(gga);
 if length(names) ~= length(fields)
     error('Number of fields in sentence does not match initialized fields')

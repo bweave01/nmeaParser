@@ -42,24 +42,44 @@ if fid < 3
 end
 
 % Read file a line at a time.
-nLines = 0;
+nRead = 0;
+nGpsRead = 0;
 nSkip = 0;
-numGga = 0;
+
+nmeaSentences = fieldnames(Nmea);
+nSentences = length(nmeaSentences);
+for iSentence = 1:nSentences
+    thisSentence = nmeaSentences{iSentence};
+    count.(thisSentence) = 0;
+end
+
 while 1
     line = fgetl(fid);
     if ~ischar(line)
         break; % Error or end of file
     end
+    nRead = nRead + 1;
     
     if ( ~isempty(line) && strcmp(line(1:3),'$GP') ) % NMEA GPS sentence
-        nLines = nLines + 1;
-        sentence_type = line(4:6);
+        nGpsRead = nGpsRead + 1;
+        sentenceType = line(4:6);
         
-        switch sentence_type
+        switch sentenceType
             case 'GGA'
-                numGga = numGga + 1;
-                gga = parseGgaSentence(line,gga,numGga);
+                count.gga = count.gga + 1;
+                Nmea.gga = parseGgaSentence(line,Nmea.gga,count.gga);
+            case 'GLL'    
+            
+            case 'GSA'
                 
+            case 'GSV'
+                
+            case 'RMC'
+                
+            case 'VTG'
+                
+            case 'ZDA'
+            
             otherwise
         end
         
@@ -71,8 +91,17 @@ end
 
 % Output structures
 Nmea.filename = filename;
-Nmea.gga = gga;
-index.gga = fieldnames(gga);
+index.gga = fieldnames(Nmea.gga);
+
+% Parsing information
+fprintf('Completed parsing of NMEA file:%s.\n',Nmea.filename)
+fprintf('Total lines read: %d\n',nRead);
+fprintf('NMEA GPS lines read: %d\n',nGpsRead);
+for iSentence = 1:nSentences
+    thisSentence = nmeaSentences{iSentence};
+    fprintf('%s messages parsed: %d\n',thisSentence,count.(thisSentence));
+end
+fprintf('Lines skipped: %d\n',nSkip);
 
 end %function
 
